@@ -377,6 +377,9 @@ class auth_plugin_openid extends auth_plugin_base {
 
         $admin = optional_param('admin', null, PARAM_ALPHANUM);
         $openid_url = optional_param('openid_url', null, PARAM_RAW);
+        $google_apps_domain = optional_param('googleapps_domain',
+                                  $this->config->auth_openid_google_apps_domain,
+                                  PARAM_RAW);
         $mode = optional_param('openid_mode', null, PARAM_ALPHANUMEXT);
         $allow_append = ($this->config->auth_openid_allow_multiple=='true');
 
@@ -390,7 +393,7 @@ class auth_plugin_openid extends auth_plugin_base {
             $CFG->alternateloginurl = $CFG->wwwroot.'/auth/openid/login.php';
         }
         
-        if ($mode == null && $openid_url != null) {
+        if ($mode == null && ($openid_url != null || !empty($google_apps_domain))) {
             // If we haven't received a response, then initiate a request
             $this->do_request();
         } elseif ($mode != null) {
@@ -462,6 +465,9 @@ class auth_plugin_openid extends auth_plugin_base {
         $store = new Auth_OpenID_FileStore($CFG->dataroot.'/openid');
         $consumer = new Auth_OpenID_Consumer($store);
         $openid_url = optional_param('openid_url', null, PARAM_RAW);
+        $google_apps_domain = optional_param('googleapps_domain',
+                                  $this->config->auth_openid_google_apps_domain,
+                                  PARAM_RAW);
         if (defined('GOOGLE_OPENID_URL') && !empty($openid_url) &&
             (stristr($openid_url,'@google.') || stristr($openid_url,'@gmail.')))
         {
@@ -484,8 +490,8 @@ class auth_plugin_openid extends auth_plugin_base {
             }
         }
 
-        if (!empty($this->config->auth_openid_google_apps_domain)) {
-            $openid_url = $this->config->auth_openid_google_apps_domain;
+        if (!empty($google_apps_domain)) {
+            $_SESSION['openid_googleapps_domain'] = $openid_url = $google_apps_domain;
             new GApps_OpenID_Discovery($consumer);
         }
         $authreq = $consumer->begin($openid_url);
@@ -642,22 +648,23 @@ class auth_plugin_openid extends auth_plugin_base {
      */
     function process_response($notify_errors=false) {
         global $CFG;
-        
+
         // Create the consumer instance
         $store = new Auth_OpenID_FileStore($CFG->dataroot.'/openid');
         $consumer = new Auth_OpenID_Consumer($store);
-        if (!empty($this->config->auth_openid_google_apps_domain)) {
+        if (!empty($_SESSION['openid_googleapps_domain'])) {
+            unset($_SESSION['openid_googleapps_domain']);
             new GApps_OpenID_Discovery($consumer);
         }
         $resp = $consumer->complete($_SESSION['openid_process_url']);
         unset($_SESSION['openid_process_url']);
-        
+
         // Act based on response status
         switch ($resp->status) {
         case Auth_OpenID_SUCCESS:
             // Auth succeeded
             return $resp;
-        
+
         case Auth_OpenID_CANCEL:
             // Auth cancelled by user.
             if ($notify_errors) {
@@ -666,7 +673,7 @@ class auth_plugin_openid extends auth_plugin_base {
                 print_error('auth_openid_user_cancelled', 'auth_openid');
             }
             break;
-        
+
         case Auth_OpenID_FAILURE:
             // Auth failed for some reason
             $sparam = new stdClass;
