@@ -756,6 +756,8 @@ class auth_plugin_openid extends auth_plugin_base {
         $DB->update_record('user', $user);
         $user = get_complete_user_data('id', $user->id);
 
+        events_trigger('user_created', $user); // Port ELIS-4347
+
         if (function_exists('on_openid_create_account')) {
             on_openid_create_account($resp, $user);
         }
@@ -767,8 +769,6 @@ class auth_plugin_openid extends auth_plugin_base {
             $urltogo = $CFG->wwwroot.'/user/edit.php';
             redirect($urltogo);
         }
-
-        events_trigger('user_created', $user);
 
         if (openid_server_requires_confirm($server, $this->config)) {
             $secret = random_string(15);
