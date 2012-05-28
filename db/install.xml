@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="auth/openid/db" VERSION="2011012000" COMMENT="XMLDB file for Moodle auth/openid"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="openid_servers" NEXT="openid_urls" COMMENT="OpenID listed servers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="server"/>
+        <FIELD NAME="server" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" DEFAULT="NULL" PREVIOUS="id" NEXT="listtype"/>
+        <FIELD NAME="listtype" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" PREVIOUS="server"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for openid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="openid_urls" PREVIOUS="openid_servers" COMMENT="OpenID additional urls">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0" PREVIOUS="id" NEXT="url"/>
+        <FIELD NAME="url" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="userid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for openid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+	</TABLE>
+  </TABLES>
+</XMLDB>
