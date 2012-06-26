@@ -384,6 +384,10 @@ class auth_plugin_openid extends auth_plugin_base {
         $allow_append = ($this->config->auth_openid_allow_multiple=='true');
 
         // Check for OpenID login override 'admin=true'
+        if ($admin === null && !empty($_SERVER['HTTP_REFERER']) &&
+            strstr($_SERVER['HTTP_REFERER'],'admin=true')) {
+            $admin = 'true';
+        }
         if (!empty($admin) && $admin == 'true') {
             return;
         }
