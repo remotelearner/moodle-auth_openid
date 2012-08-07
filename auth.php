@@ -382,10 +382,9 @@ class auth_plugin_openid extends auth_plugin_base {
                                   PARAM_RAW);
         $mode = optional_param('openid_mode', null, PARAM_ALPHANUMEXT);
         $allow_append = ($this->config->auth_openid_allow_multiple=='true');
-
+        $referer = get_referer(false);
         // Check for OpenID login override 'admin=true'
-        if ($admin === null && !empty($_SERVER['HTTP_REFERER']) &&
-            strstr($_SERVER['HTTP_REFERER'],'admin=true')) {
+        if ($admin === null && strstr($referer,'admin=true')) {
             $admin = 'true';
         }
         if (!empty($admin) && $admin == 'true') {
@@ -397,7 +396,8 @@ class auth_plugin_openid extends auth_plugin_base {
             $CFG->alternateloginurl = $CFG->wwwroot.'/auth/openid/login.php';
         }
         
-        if ($mode == null && ($openid_url != null || !empty($google_apps_domain))) {
+        if ($mode == null && ($openid_url != null || !empty($google_apps_domain))
+            && (strpos($referer, 'auth/openid/login.php') !== false || $this->is_sso())) {
             // If we haven't received a response, then initiate a request
             $this->do_request();
         } elseif ($mode != null) {
