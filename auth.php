@@ -375,6 +375,8 @@ class auth_plugin_openid extends auth_plugin_base {
         global $CFG, $DB;
         global $frm, $user; // Login page variables
 
+        $username = optional_param('username', null, PARAM_ALPHANUM);
+        $password = optional_param('password', null, PARAM_ALPHANUM);
         $admin = optional_param('admin', null, PARAM_ALPHANUM);
         $openid_url = optional_param('openid_url', null, PARAM_RAW);
         $google_apps_domain = optional_param('googleapps_domain',
@@ -397,7 +399,8 @@ class auth_plugin_openid extends auth_plugin_base {
         }
         
         if ($mode == null && ($openid_url != null || !empty($google_apps_domain))
-            && (strpos($referer, 'auth/openid/login.php') !== false || $this->is_sso())) {
+            && ($username == null && $password == null &&
+                (strpos($referer, 'auth/openid/login.php') !== false || $this->is_sso()))) {
             // If we haven't received a response, then initiate a request
             $this->do_request();
         } elseif ($mode != null) {
