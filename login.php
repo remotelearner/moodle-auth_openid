@@ -60,6 +60,10 @@ $login_all = empty($config->auth_openid_limit_login) || !empty($login_opts);
         set_moodle_cookie('nobody');   // To help search for cookies
     }
 
+    if (!isset($frm)) {
+        $frm = new stdClass;
+    }
+
     if (empty($frm->username) && (empty($authsequence) || !is_array($authsequence) || $authsequence[0] != 'shibboleth')) {  // See bug 5184
         $frm->username = get_moodle_cookie() === 'nobody' ? '' : get_moodle_cookie();
         $frm->password = "";
