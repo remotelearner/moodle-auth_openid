@@ -36,22 +36,6 @@ $login_all = empty($config->auth_openid_limit_login) || !empty($login_opts);
 
 /// Define variables used in page
 
-    $langlabel = get_string('language');
-    // Pre-2.0: ^='<span class="accesshide">'.get_string('language').':</span>';
-
-    $currlang = current_language();
-    if (empty($CFG->langmenu)) {
-        $langmenu_url = '';
-        $langs = null;
-    } else {
-        $langs = get_string_manager()->get_list_of_translations();
-        // Pre-2.0: get_list_of_languages();
-        $langmenu_url = new moodle_url("$CFG->httpswwwroot/login/index.php");
-        //$langmenu_url->param(array('lang' => $langs));
-        //$langmenu_url->param(array('chooselang' => $currlang));
-        // Pre 2.0: popup_form("$CFG->httpswwwroot/login/index.php?lang=", $langs, "chooselang", $currlang, "", "", "", true, 'self', $langlabel);
-    }
-
     $loginsite = get_string("loginsite");
     $errormsg = empty($session_has_timed_out) ? ''
                 : get_string('sessionerroruser', 'error');
@@ -122,10 +106,7 @@ $login_all = empty($config->auth_openid_limit_login) || !empty($login_opts);
     }
 
     echo $OUTPUT->header();
-    $select = new single_select($langmenu_url, 'lang', $langs, 'chooselang',
-                                /* $currlang */ null, $langlabel);
-    $select->set_label($langlabel);
-    echo $OUTPUT->render($select);
+    echo $OUTPUT->lang_menu();
     if (!empty($errorkey)) {
         print_error($errorkey, 'auth_openid');
     }
