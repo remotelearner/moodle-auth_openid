@@ -199,20 +199,6 @@ if (isset($file)) {
         print_error('auth_openid_no_site', 'auth_openid');
     }
 
-    $langlabel = get_string('language');
-    $currlang = current_language();
-    if (empty($CFG->langmenu)) {
-        $langs = null;
-        $langmenu_url = '';
-    } else {
-        $langs = get_string_manager()->get_list_of_translations();
-        // Pre-2.0: ^= get_list_of_languages();
-        $langmenu_url = new moodle_url("$CFG->httpswwwroot/login/index.php");
-        //$langmenu_url->param(array('lang' => $langs));
-        //$langmenu_url->param(array('chooselang' => $currlang));
-        // Pre 2.0: popup_form("$CFG->httpswwwroot/login/index.php?lang=", $langs, "chooselang", $currlang, "", "", "", true, 'self', $langlabel);
-    }
-
     $loginsite = get_string("loginsite");
 /** 
  * pre-MOODLE 2.0
@@ -237,10 +223,7 @@ if (isset($file)) {
     $PAGE->set_title("$site->fullname: $loginsite");
     $PAGE->set_heading("$site->fullname: $loginsite"); // TBD
     echo $OUTPUT->header();
-    $select = new single_select($langmenu_url, 'lang', $langs, 'chooselang',
-                                /* $currlang */ null, $langlabel);
-    $select->set_label($langlabel);
-    echo $OUTPUT->render($select);
+    echo $OUTPUT->lang_menu();
     echo '<hr/>';
     include $file;
     echo $OUTPUT->footer();
