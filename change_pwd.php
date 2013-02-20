@@ -13,7 +13,7 @@ require_once(dirname(__FILE__) ."/../../config.php");
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
-$context = get_context_instance(CONTEXT_SYSTEM);
+$context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url('/auth/openid/change_pwd.php');
 $title = get_string('openid_manage', 'auth_openid');

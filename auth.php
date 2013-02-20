@@ -448,6 +448,7 @@ class auth_plugin_openid extends auth_plugin_base {
                                  || $this->config->auth_openid_create_account == 'true');
                 }
                 if (!empty($user)) {
+                    $frm = new stdClass();
                     $frm->username = $user->username;
                     $frm->password = $user->password;
                 }

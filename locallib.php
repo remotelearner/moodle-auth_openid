@@ -62,7 +62,7 @@ function openid_login_file() {
  */
 function openid_normalize_url_as_username($openid_url) {
     global $DB;
-    $username = eregi_replace('[^a-z0-9]', '', $openid_url);
+    $username = preg_replace('/[^a-z0-9]/i', '', $openid_url);
     $username = substr($username, 0, 90); // Keep it within limits of schema
     $username_tmp = $username;
     $i = 1;

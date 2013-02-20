@@ -11,6 +11,6 @@
  * @package openid
  **/
 
-$plugin->version  = 2011012000;  // The current module version (Date: YYYYMMDDXX)
+$plugin->version  = 2013022016;  // The current module version (Date: YYYYMMDDXX)
 $plugin->requires = 2010112200;  // Requires this Moodle 2.0 version
 $plugin->release = '2.3.1.5';      // ELIS Component Version

@@ -24,7 +24,7 @@
     $p = optional_param('p', '', PARAM_RAW);   // Old parameter:  secret
     $s = optional_param('s', '', PARAM_CLEAN); // Old parameter:  username
 
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = context_system::instance();
     $PAGE->set_context($context);
     $PAGE->set_url('/auth/openid/confirm.php'); // TBD: params?
 

@@ -208,7 +208,7 @@ if (isset($file)) {
                  $focus, '', true, '<div class="langmenu">'.$langmenu.'</div>');
  * end pre-MOODLE 2.0 
 **/
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = context_system::instance();
     $PAGE->set_context($context);
     $PAGE->set_url('/auth/openid/actions.php',
               array('openid_tmp_login' => $openid_tmp_login,

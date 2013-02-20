@@ -68,7 +68,7 @@ $login_all = empty($config->auth_openid_limit_login) || !empty($login_opts);
                  $focus, '', true, '<div class="langmenu">'.$langmenu.'</div>');
  * end pre-MOODLE 2.0
 **/
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = context_system::instance();
     $PAGE->set_context($context);
     $PAGE->set_url('/auth/openid/login.php');
     $PAGE->set_title("$site->fullname: $loginsite");
