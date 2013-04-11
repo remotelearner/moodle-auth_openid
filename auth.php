@@ -818,4 +818,28 @@ class auth_plugin_openid extends auth_plugin_base {
         //error_log("/auth/openid/auth.php::compare_useremail_response(): $user->email ?= $email ");
         return( !empty($email) ? ($user->email == $email) : true);
     }
+
+    /**
+     * Cron function will be called automatically by cron.php every 5 minutes
+     */
+    function cron() {
+        global $CFG;
+
+        $current = time();
+
+        // Get previous run timestamp
+        $previous = get_config('auth/openid', 'lastcleanup');
+        $interval = $current - $previous;
+        $intervaldays = floor($interval/(60*60*24));
+
+        // Nonce cleanup should be run once per day
+        // No assocations are created, and thus do not need to be cleaned up
+        if ($intervaldays >= 1) {
+            // Create the consumer instance
+            $store = new Auth_OpenID_FileStore($CFG->dataroot.'/openid');
+            $store->cleanupNonces();
+            set_config('lastcleanup', $current, 'auth/openid');
+            $this->config->lastcleanup = $current;
+        }
+    }
 }
