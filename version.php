@@ -1,5 +1,4 @@
 <?php
-
 /**
  * OpenID module version information
  *
@@ -9,8 +8,8 @@
  * @copyright Copyright (c) 2007 Canonical
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package openid
- **/
+ */
 
-$plugin->version  = 2013022016;  // The current module version (Date: YYYYMMDDXX)
-$plugin->requires = 2010112200;  // Requires this Moodle 2.0 version
-$plugin->release = '2.4.1.5';      // ELIS Component Version
+$plugin->version  = 2013022017;  // The current module version (Date: YYYYMMDDXX)
+$plugin->requires = 2010112200;  // Requires this Moodle version
+$plugin->release = '2.4.1.6';    // ELIS Component Version
