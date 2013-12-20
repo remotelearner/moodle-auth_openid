@@ -306,7 +306,7 @@ class auth_plugin_openid extends auth_plugin_base {
                     $DB->insert_record('openid_servers', $record);
                 }
             } else {
-                $servers = optional_param('servers', array(), PARAM_RAW);
+                $servers = optional_param_array('servers', array(), PARAM_RAW);
                 
                 foreach ($servers as $id=>$val) {
                     $id = intval($id);
