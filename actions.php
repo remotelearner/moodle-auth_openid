@@ -36,7 +36,7 @@ if ($openid_tmp_login) {
 }
 $action = optional_param('openid_action', '', PARAM_ALPHA);
 $url = optional_param('openid_url', null, PARAM_RAW);
-$delete_urls = optional_param('delete_urls', array(), PARAM_RAW);
+$delete_urls = optional_param_array('delete_urls', array(), PARAM_RAW);
 $mode = optional_param('openid_mode', null, PARAM_ALPHANUMEXT);
 $confirm = optional_param('confirm_action', false, PARAM_BOOL);
 $cancel = optional_param('cancel_action', false, PARAM_BOOL);
