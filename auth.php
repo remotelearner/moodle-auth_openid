@@ -398,9 +398,9 @@ class auth_plugin_openid extends auth_plugin_base {
             $CFG->alternateloginurl = $CFG->wwwroot.'/auth/openid/login.php';
         }
         
-        if ($mode == null && ($openid_url != null || !empty($google_apps_domain))
-            && ($username == null && $password == null &&
-                (strpos($referer, 'auth/openid/login.php') !== false || $this->is_sso()))) {
+        // No response received, form submitted OpenID URL or GoogleApps domain is set and "OpenID authentication only" option is set.
+        if ($mode == null && ($openid_url != null || (!empty($google_apps_domain) && !empty($this->config->auth_openid_limit_login)))
+            && ($username == null && $password == null)) {
             // If we haven't received a response, then initiate a request
             $this->do_request();
         } elseif ($mode != null) {
