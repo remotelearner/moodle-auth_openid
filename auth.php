@@ -458,14 +458,14 @@ class auth_plugin_openid extends auth_plugin_base {
     /**
      * Initiate an OpenID request
      *
-     * @param boolean $allow_sreg Default true
-     * @param string $process_url Default empty (will use $CFG->wwwroot)
+     * @param boolean $allowsreg Determines if registration is allowed
+     * @param string $processurl The URL to process
      * @param array $params Array of extra parameters to append to the request
      * @uses $CFG
      * @uses $USER
      * @uses $OUTPUT
      */
-    function do_request($allow_sreg=true, $process_url='', $params=array()) {
+    function do_request($allowsreg = true, $processurl = '', $params = array()) {
         global $CFG, $USER, $OUTPUT;
 
         // Create the consumer instance
@@ -486,8 +486,9 @@ class auth_plugin_openid extends auth_plugin_base {
                ($tmpuser = get_complete_user_data('email', $tmpemail)) &&
                 $tmpuser->auth != 'openid')
             {
-                $allow_sreg = true; // would like to verify email later
-                $process_url = $CFG->wwwroot.'/auth/openid/actions.php';
+                // Verify email later.
+                $allowsreg = true;
+                $processurl = $CFG->wwwroot.'/auth/openid/actions.php';
                 $USER = $tmpuser;
                 $params['openid_tmp_login'] = true; // require flag in action.php
                 $params['openid_action'] = 'change';
@@ -513,132 +514,123 @@ class auth_plugin_openid extends auth_plugin_base {
 
         if (!$authreq) {
             print_error('auth_openid_login_error', 'auth_openid');
+        }
+
+        // Add any simple registration fields to the request.
+        if ($allowsreg === true) {
+            $sregadded = false;
+            $req = array();
+            $opt = array();
+            $privacyurl = null;
+
+            // Required fields.
+            if (!empty($this->config->openid_sreg_required)) {
+                $req = array_map('trim', explode(',', $this->config->openid_sreg_required));
+                $sregadded = true;
+            }
+
+            // Optional fields.
+            if (!empty($this->config->openid_sreg_optional)) {
+                $opt = array_map('trim', explode(',', $this->config->openid_sreg_optional));
+                $sregadded = true;
+            }
+
+            // Privacy statement.
+            if ($sregadded && !empty($this->config->openid_privacy_url)) {
+                $privacyurl = $this->config->openid_privacy_url;
+            }
+
+            /**
+             * We call the on_openid_do_request event handler function if it
+             * exists. This is called before the simple registration (sreg)
+             * extension is added to allow changes to be made to the sreg
+             * data fields if required.
+             */
+            if (function_exists('on_openid_do_request')) {
+                on_openid_do_request($authreq);
+            }
+
+            // Finally, the simple registration data is added.
+            if ($sregadded && !(count($req) < 1 && count($opt) < 1)) {
+                $sreg_request = Auth_OpenID_SRegRequest::build($req, $opt, $privacyurl);
+                if ($sreg_request) {
+                    $authreq->addExtension($sreg_request);
+                }
+            }
+
+            // Add AX (Attribute Exchange) support.
+            $AXattr = array();
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_EMAIL,1,1, 'email');
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_NICKNAME,1,1, 'nickname');
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_FULLNAME,1,1, 'fullname');
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_FIRSTNAME,1,1, 'firstname');
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_LASTNAME,1,1, 'lastname');
+            $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_COUNTRY,1,1, 'country');
+            // Create AX fetch request.
+            $ax = new Auth_OpenID_AX_FetchRequest();
+
+            // Add attributes to AX fetch request.
+            foreach($AXattr as $attr){
+                $ax->add($attr);
+            }
+
+            // Add AX fetch request to authentication request.
+            $authreq->addExtension($ax);
+        }
+
+        // Prepare the remaining components for the request.
+        if (empty($processurl)) {
+            $processurl = $CFG->wwwroot.'/login/index.php';
+        }
+
+        if (is_array($params) && !empty($params)) {
+            $query = '';
+            foreach ($params as $key => $val) {
+                $query .= '&'.$key.'='.$val;
+            }
+            $processurl .= '?'.substr($query, 1);
+        }
+
+        $trustroot = $CFG->wwwroot.'/';
+        $_SESSION['openid_process_url'] = $processurl;
+
+        // Finally, redirect to the OpenID provider. Check if the server is allowed.
+        if (!openid_server_allowed($authreq->endpoint->server_url, $this->config)) {
+            $sparam = new stdClass;
+            $sparam->url = $authreq->endpoint->server_url;
+            print_error('auth_openid_server_blacklisted', 'auth_openid', '', $sparam);
+        } elseif ($authreq->shouldSendRedirect()) {
+            // If this is an OpenID 1.x request, redirect the user.
+            $redirecturl = $authreq->redirectURL($trustroot, $processurl);
+
+            // If the redirect URL can't be built, display an error message.
+            if (Auth_OpenID::isFailure($redirecturl)) {
+                echo $OUTPUT->error_text($redirecturl->message);
+                // TBD.
+                exit;
+            } else {
+                // Otherwise, we want to redirect.
+                redirect($redirecturl);
+            }
         } else {
-            // Add any simple registration fields to the request
-            if ($allow_sreg === true) {
-                $sreg_added = false;
-                $req = array();
-                $opt = array();
-                $privacy_url = null;
-                
-                // Required fields
-                if (!empty($this->config->openid_sreg_required)) {
-                    $req = array_map('trim', explode(',', $this->config->openid_sreg_required));
-                    $sreg_added = true;
-                }
-                
-                // Optional fields
-                if (!empty($this->config->openid_sreg_optional)) {
-                    $opt = array_map('trim', explode(',', $this->config->openid_sreg_optional));
-                    $sreg_added = true;
-                }
-                
-                // Privacy statement
-                if ($sreg_added && !empty($this->config->openid_privacy_url)) {
-                    $privacy_url = $this->config->openid_privacy_url;
-                }
-                
-                // We call the on_openid_do_request event handler function if it
-                // exists. This is called before the simple registration (sreg)
-                // extension is added to allow changes to be made to the sreg
-                // data fields if required
-                if (function_exists('on_openid_do_request')) {
-                    on_openid_do_request($authreq);
-                }
-                
-                // Finally, the simple registration data is added
-                if ($sreg_added && !(sizeof($req)<1 && sizeof($opt)<1)) {
+            // Use the post form method if using OpenID 2.0. Generate form markup and render it.
+            $formid = 'openid_message';
+            $message = $authreq->getMessage($trustroot, $processurl, false);
 
-                    $sreg_request = Auth_OpenID_SRegRequest::build(
-                        $req, $opt, $privacy_url);
+            // Display an error if the form markup couldn't be generated; otherwise, render the HTML.
+            if (Auth_OpenID::isFailure($message)) {
+                echo $OUTPUT->error_text($message);
+                // TBD.
+                exit;
+            } else {
+                $formhtml = $message->toFormMarkup($authreq->endpoint->server_url, array('id' => $formid), get_string('continue'));
+                $html = '<html><head><title>OpenID request</title></head>';
+                $html .= '<body onload="document.getElementById(\''.$formid.'\').submit();" style="text-align: center;">';
+                $html .= '<div style="background: lightyellow; border: 1px solid black; margin: 30px 20%; padding: 5px 15px;"><p>';
+                $html .= get_string('openid_redirecting', 'auth_openid')."</p></div>$formhtml</body></html>";
 
-                    if ($sreg_request) {
-                        $authreq->addExtension($sreg_request);
-                    }
-                }
-
-                // Add AX (Attribute Exchange) support
-                $AXattr = array();
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_EMAIL,1,1, 'email');
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_NICKNAME,1,1, 'nickname');
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_FULLNAME,1,1, 'fullname');
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_FIRSTNAME,1,1, 'firstname');
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_LASTNAME,1,1, 'lastname');
-                $AXattr[] = Auth_OpenID_AX_AttrInfo::make(AX_SCHEMA_COUNTRY,1,1, 'country');
-                // Create AX fetch request
-                $ax = new Auth_OpenID_AX_FetchRequest();
-
-                // Add attributes to AX fetch request
-                foreach($AXattr as $attr){
-                    $ax->add($attr);
-                }
-
-                // Add AX fetch request to authentication request
-                $authreq->addExtension($ax);
-            }
-
-            // Prepare the remaining components for the request
-            if (empty($process_url)) {
-                $process_url = $CFG->wwwroot.'/login/index.php';
-            }
-            
-            if (is_array($params) && !empty($params)) {
-                $query = '';
-                
-                foreach ($params as $key=>$val) {
-                    $query .= '&'.$key.'='.$val;
-                }
-                
-                $process_url .= '?'.substr($query, 1);
-            }
-            
-            $trust_root = $CFG->wwwroot.'/';
-            $_SESSION['openid_process_url'] = $process_url;
-            
-            // Finally, redirect to the OpenID provider
-            // Check if the server is allowed ...
-            if (!openid_server_allowed($authreq->endpoint->server_url, $this->config)) {
-                $sparam = new stdClass;
-                $sparam->url = $authreq->endpoint->server_url;
-                print_error('auth_openid_server_blacklisted',
-                            'auth_openid', '', $sparam);
-            }
-            
-            // If this is an OpenID 1.x request, redirect the user
-            elseif ($authreq->shouldSendRedirect()) {
-                $redirect_url = $authreq->redirectURL($trust_root, $process_url);
-
-                // If the redirect URL can't be built, display an error message.
-                if (Auth_OpenID::isFailure($redirect_url)) {
-                    echo $OUTPUT->error_text($redirect_url->message);
-                    exit; // TBD
-                }
-
-                // Otherwise, we want to redirect
-                else {
-                    redirect($redirect_url);
-                }
-            }
-
-            // or use the post form method if using OpenID 2.0
-            else {
-                // Generate form markup and render it.
-                $form_id = 'openid_message';
-                $message = $authreq->getMessage($trust_root, $process_url, false);
-                
-                // Display an error if the form markup couldn't be generated;
-                // otherwise, render the HTML.
-                if (Auth_OpenID::isFailure($message)) {
-                    echo $OUTPUT->error_text($message);
-                    exit; // TBD
-                }
-                
-                else {
-                    $form_html = $message->toFormMarkup($authreq->endpoint->server_url,
-                        array('id' => $form_id), get_string('continue'));
-                    echo '<html><head><title>OpenID request</title></head><body onload="document.getElementById(\'',$form_id,'\').submit();" style="text-align: center;"><div style="background: lightyellow; border: 1px solid black; margin: 30px 20%; padding: 5px 15px;"><p>',get_string('openid_redirecting', 'auth_openid'),'</p></div>',$form_html,'</body></html>';
-                    exit;
-                }
+                echo $html;
+                exit;
             }
         }
     }
