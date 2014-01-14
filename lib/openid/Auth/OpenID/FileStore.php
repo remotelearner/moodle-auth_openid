@@ -227,7 +227,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      * Retrieve an association. If no handle is specified, return the
      * association with the most recent issue time.
      *
-     * @return mixed $association
+     * @return mixed The association or null
      */
     function getAssociation($server_url, $handle = null)
     {
@@ -243,6 +243,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         // The filename with the empty handle is a prefix of all other
         // associations for the given server URL.
         $filename = $this->getAssociationFilename($server_url, $handle);
+
+        if ($filename === null) {
+            return null;
+        }
 
         if ($handle) {
             return $this->_getAssociation($filename);

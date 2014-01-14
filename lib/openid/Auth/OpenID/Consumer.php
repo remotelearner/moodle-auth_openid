@@ -367,21 +367,22 @@ class Auth_OpenID_Consumer {
      * @param bool anonymous Set to true if you want to perform OpenID
      * without identifiers.
      *
-     * @return Auth_OpenID_AuthRequest $auth_request An OpenID
-     * authentication request object.
+     * @return mixed An OpenID authentication request object or null
      */
     function beginWithoutDiscovery($endpoint, $anonymous=false)
     {
         $loader = new Auth_OpenID_ServiceEndpointLoader();
-        $auth_req = $this->consumer->begin($endpoint);
-        $this->session->set($this->_token_key,
-              $loader->toSession($auth_req->endpoint));
-        if (!$auth_req->setAnonymous($anonymous)) {
+        $authreq = $this->consumer->begin($endpoint);
+        if ($authreq === null) {
+            return null;
+        }
+        $this->session->set($this->_token_key, $loader->toSession($authreq->endpoint));
+        if (!$authreq->setAnonymous($anonymous)) {
             return new Auth_OpenID_FailureResponse(null,
               "OpenID 1 requests MUST include the identifier " .
               "in the request.");
         }
-        return $auth_req;
+        return $authreq;
     }
 
     /**
@@ -636,10 +637,14 @@ class Auth_OpenID_GenericConsumer {
      * {@link Auth_OpenID_ServiceEndpoint}.
      *
      * @access private
+     * @return mixed An OpenID authentication request object or null
      */
     function begin($service_endpoint)
     {
         $assoc = $this->_getAssociation($service_endpoint);
+        if ($assoc === null) {
+            return null;
+        }
         $r = new Auth_OpenID_AuthRequest($service_endpoint, $assoc);
         $r->return_to_args[$this->openid1_nonce_query_arg_name] =
             Auth_OpenID_mkNonce();
