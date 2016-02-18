@@ -124,10 +124,12 @@ function Auth_OpenID_removeNamespaceAlias($namespace_uri, $alias)
  */
 class Auth_OpenID_Mapping {
     /**
+     * Constructor
      * Initialize a mapping.  If $classic_array is specified, its keys
      * and values are used to populate the mapping.
+     * @param array $classic_array If specified, keys & values are used to populate the mapping.
      */
-    function Auth_OpenID_Mapping($classic_array = null)
+    public function __construct($classic_array = null)
     {
         $this->keys = array();
         $this->values = array();
@@ -274,7 +276,10 @@ class Auth_OpenID_Mapping {
  * @package OpenID
  */
 class Auth_OpenID_NamespaceMap {
-    function Auth_OpenID_NamespaceMap()
+    /**
+     * Constructor
+     */
+    public function __construct()
     {
         $this->alias_to_namespace = new Auth_OpenID_Mapping();
         $this->namespace_to_alias = new Auth_OpenID_Mapping();
@@ -414,7 +419,11 @@ class Auth_OpenID_NamespaceMap {
  */
 class Auth_OpenID_Message {
 
-    function Auth_OpenID_Message($openid_namespace = null)
+    /**
+     * Constructor
+     * @param string $openid_namespace The OpenID namespace.
+     */
+    public function __construct($openid_namespace = null)
     {
         // Create an empty Message
         $this->allowed_openid_namespaces = array(

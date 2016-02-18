@@ -37,8 +37,12 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     var $ns_alias = 'pape';
     var $ns_uri = Auth_OpenID_PAPE_NS_URI;
 
-    function Auth_OpenID_PAPE_Request($preferred_auth_policies=null,
-                                      $max_auth_age=null)
+    /**
+     * Constructor
+     * @param $preferred_auth_policies
+     * @param $max_auth_age
+     */
+    public function __construct($preferred_auth_policies = null, $max_auth_age = null)
     {
         if ($preferred_auth_policies === null) {
             $preferred_auth_policies = array();
@@ -161,8 +165,13 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
     var $ns_alias = 'pape';
     var $ns_uri = Auth_OpenID_PAPE_NS_URI;
 
-    function Auth_OpenID_PAPE_Response($auth_policies=null, $auth_time=null,
-                                       $nist_auth_level=null)
+    /**
+     * Constructor
+     * @param $auth_policies
+     * @param $auth_time
+     * @param $nist_auth_level
+     */
+    public function __construct($auth_policies = null, $auth_time = null, $nist_auth_level = null)
     {
         if ($auth_policies) {
             $this->auth_policies = $auth_policies;

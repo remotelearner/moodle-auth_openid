@@ -258,8 +258,7 @@ class Auth_OpenID_Consumer {
      * when creating the internal consumer object.  This is used for
      * testing.
      */
-    function Auth_OpenID_Consumer($store, $session = null,
-                                  $consumer_cls = null)
+    public function __construct($store, $session = null, $consumer_cls = null)
     {
         if ($session === null) {
             $session = new Auth_Yadis_PHPSession();
@@ -466,7 +465,11 @@ class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     var $secret_size = 20;
     var $allowed_assoc_types = array('HMAC-SHA1');
 
-    function Auth_OpenID_DiffieHellmanSHA1ConsumerSession($dh = null)
+    /**
+     * Constructor
+     * @param $dh
+     */
+    public function __construct($dh = null)
     {
         if ($dh === null) {
             $dh = new Auth_OpenID_DiffieHellman();
@@ -621,7 +624,7 @@ class Auth_OpenID_GenericConsumer {
      * in the module description.  The default value is False, which
      * disables immediate mode.
      */
-    function Auth_OpenID_GenericConsumer($store)
+    public function __construct($store)
     {
         $this->store = $store;
         $this->negotiator = Auth_OpenID_getDefaultNegotiator();
@@ -910,7 +913,7 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _verifyReturnToArgs($query)
+    public static function _verifyReturnToArgs($query)
     {
         // Verify that the arguments in the return_to URL are present in this
         // response.
@@ -1773,14 +1776,17 @@ class Auth_OpenID_GenericConsumer {
 class Auth_OpenID_AuthRequest {
 
     /**
+     * Constructor
      * Initialize an authentication request with the specified token,
      * association, and endpoint.
      *
      * Users of this library should not create instances of this
      * class.  Instances of this class are created by the library when
      * needed.
+     * @param string $endpoint
+     * @param $assoc
      */
-    function Auth_OpenID_AuthRequest($endpoint, $assoc)
+    public function __construct($endpoint, $assoc)
     {
         $this->assoc = $assoc;
         $this->endpoint = $endpoint;
@@ -2057,9 +2063,12 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     var $status = Auth_OpenID_SUCCESS;
 
     /**
-     * @access private
+     * Constructor
+     * @param string $endpoint
+     * @param string $message
+     * @param $signed_args
      */
-    function Auth_OpenID_SuccessResponse($endpoint, $message, $signed_args=null)
+    public function __construct($endpoint, $message, $signed_args = null)
     {
         $this->endpoint = $endpoint;
         $this->identity_url = $endpoint->claimed_id;
@@ -2162,8 +2171,14 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
 class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
     var $status = Auth_OpenID_FAILURE;
 
-    function Auth_OpenID_FailureResponse($endpoint, $message = null,
-                                         $contact = null, $reference = null)
+    /**
+     * Constructor
+     * @param string $endpoint
+     * @param string $message
+     * @param $contact
+     * @param $reference
+     */
+    public function __construct($endpoint, $message = null, $contact = null, $reference = null)
     {
         $this->setEndpoint($endpoint);
         $this->message = $message;
@@ -2187,9 +2202,13 @@ class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
  * @package OpenID
  */
 class Auth_OpenID_ServerErrorContainer {
-    function Auth_OpenID_ServerErrorContainer($error_text,
-                                              $error_code,
-                                              $message)
+    /**
+     * Constructor
+     * @param string $error_text
+     * @param $error_code
+     * @param string $message
+     */
+    public function __construct($error_text, $error_code, $message)
     {
         $this->error_text = $error_text;
         $this->error_code = $error_code;
@@ -2225,7 +2244,11 @@ class Auth_OpenID_ServerErrorContainer {
 class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
     var $status = Auth_OpenID_CANCEL;
 
-    function Auth_OpenID_CancelResponse($endpoint)
+    /**
+     * Constructor
+     * @param string $endpoint
+     */
+    public function __construct($endpoint)
     {
         $this->setEndpoint($endpoint);
     }
@@ -2251,8 +2274,12 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
 class Auth_OpenID_SetupNeededResponse extends Auth_OpenID_ConsumerResponse {
     var $status = Auth_OpenID_SETUP_NEEDED;
 
-    function Auth_OpenID_SetupNeededResponse($endpoint,
-                                             $setup_url = null)
+    /**
+     * Constructor
+     * @param string $endpoint
+     * @param string $setup_url
+     */
+    public function __construct($endpoint, $setup_url = null)
     {
         $this->setEndpoint($endpoint);
         $this->setup_url = $setup_url;

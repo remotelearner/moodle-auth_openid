@@ -75,7 +75,7 @@ class GApps_OpenID_Discovery {
      * @param memcache $memcache Optional memcache handle for caching 
      * discovery information.
      */
-    function GApps_OpenID_Discovery($consumer, $trust_roots = null, $memcache = null) {
+    public function __construct($consumer, $trust_roots = null, $memcache = null) {
         $this->verifier = new GApps_OpenID_SimpleSign($trust_roots);
         $this->memcache = $memcache;
         $consumer->discoverMethod = array($this, 'discover');
@@ -310,7 +310,7 @@ class GApps_OpenID_SimpleSign {
      *
      * @param array(mixed) $trust_roots Array of directories or files containing trusted CAs.
      */
-    function GApps_OpenID_SimpleSign($trust_roots = null) {
+    public function __construct($trust_roots = null) {
         $this->trust_roots = $trust_roots;
         if ($this->trust_roots == null) { 
             $file = dirname(__FILE__)."/ca-bundle.crt";

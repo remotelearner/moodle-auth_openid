@@ -46,7 +46,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      * @param string $directory This is the directory to put the store
      * directories in.
      */
-    function Auth_OpenID_FileStore($directory)
+    public function __construct($directory)
     {
         if (!Auth_OpenID::ensureDir($directory)) {
             trigger_error('Not a directory and failed to create: '
@@ -470,7 +470,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _rmtree($dir)
+    public static function _rmtree($dir)
     {
         if ($dir[strlen($dir) - 1] != DIRECTORY_SEPARATOR) {
             $dir .= DIRECTORY_SEPARATOR;
@@ -508,7 +508,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _mkstemp($dir)
+    public static function _mkstemp($dir)
     {
         foreach (range(0, 4) as $i) {
             $name = tempnam($dir, "php_openid_filestore_");
@@ -540,7 +540,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _listdir($dir)
+    public static function _listdir($dir)
     {
         $handle = opendir($dir);
         $files = array();
@@ -555,7 +555,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _isFilenameSafe($char)
+    public static function _isFilenameSafe($char)
     {
         $_Auth_OpenID_filename_allowed = Auth_OpenID_letters .
             Auth_OpenID_digits . ".";
@@ -565,7 +565,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _safe64($str)
+    public static function _safe64($str)
     {
         $h64 = base64_encode(Auth_OpenID_SHA1($str));
         $h64 = str_replace('+', '_', $h64);
@@ -577,7 +577,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _filenameEscape($str)
+    public static function _filenameEscape($str)
     {
         $filename = "";
         $b = Auth_OpenID::toBytes($str);
@@ -600,7 +600,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      * @access private
      * @return bool $result True if the file was present, false if not.
      */
-    function _removeIfPresent($filename)
+    public static function _removeIfPresent($filename)
     {
         return @unlink($filename);
     }

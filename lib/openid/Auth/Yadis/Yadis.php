@@ -68,7 +68,11 @@ class Auth_Yadis_DiscoveryResult {
     // Did the discovery fail miserably?
     var $failed = false;
 
-    function Auth_Yadis_DiscoveryResult($request_uri)
+    /**
+     * Constructor
+     * @param string $request_uri The URI to pass to the fetcher.
+     */
+    public function __construct($request_uri)
     {
         // Initialize the state of the object
         // sets all attributes to None except the request_uri

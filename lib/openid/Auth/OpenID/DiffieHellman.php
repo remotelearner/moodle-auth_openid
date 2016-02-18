@@ -47,8 +47,14 @@ class Auth_OpenID_DiffieHellman {
     var $private;
     var $lib = null;
 
-    function Auth_OpenID_DiffieHellman($mod = null, $gen = null,
-                                       $private = null, $lib = null)
+    /**
+     * Constructor
+     * @param $mod
+     * @param $gen
+     * @param $private
+     * @param $lib
+     */
+    public function __construct($mod = null, $gen = null, $private = null, $lib = null)
     {
         if ($lib === null) {
             $this->lib = Auth_OpenID_getMathLib();

@@ -23,8 +23,14 @@ define('Auth_OpenID_USER_AGENT',
        'php-openid/'.Auth_OpenID_VERSION.' (php/'.phpversion().')');
 
 class Auth_Yadis_HTTPResponse {
-    function Auth_Yadis_HTTPResponse($final_url = null, $status = null,
-                                         $headers = null, $body = null)
+    /**
+     * Constructor
+     * @param string $final_url
+     * @param $status
+     * @param array $headers
+     * @oaram $body
+     */
+    public function __construct($final_url = null, $status = null, $headers = null, $body = null)
     {
         $this->final_url = $final_url;
         $this->status = $status;

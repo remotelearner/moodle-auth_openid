@@ -43,7 +43,10 @@ class Auth_Yadis_ParseHTML {
      */
     var $_attr_find = '\b([-\w]+)=(".*?"|\'.*?\'|.+?)[\/\s>]';
 
-    function Auth_Yadis_ParseHTML()
+    /**
+     * Constructor
+     */
+    public function __construct()
     {
         $this->_attr_find = sprintf("/%s/%s",
                                     $this->_attr_find,
@@ -82,8 +85,12 @@ class Auth_Yadis_ParseHTML {
 
         // Replace numeric entities because html_entity_decode doesn't
         // do it for us.
-        $str = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $str);
-        $str = preg_replace('~&#([0-9]+);~e', 'chr(\\1)', $str);
+        $str = preg_replace_callback('~&#x([0-9a-f]+);~i', function($m) {
+            return chr(hexdec($m[1]));
+        }, $str);
+        $str = preg_replace_callback('~&#([0-9]+);~', function($m) {
+            return chr($m[1]);
+        }, $str);
 
         return $str;
     }
