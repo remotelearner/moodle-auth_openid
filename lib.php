@@ -213,13 +213,11 @@ function openid_parse_full_name($fullname) {
  */
 function openid_get_friendly_message($message) {
     $msgdef = strtolower($message);
-    $msgdef = ereg_replace(' ', '_', $msgdef);
-    $msgdef = ereg_replace('[^0-9a-z_]', '', $msgdef);
+    $msgdef = preg_replace('/ /', '_', $msgdef);
+    $msgdef = preg_replace('/[^0-9^a-z^_]/', '', $msgdef);
     $msgdef = 'auth_openid_'.$msgdef;
-    $msg = get_string($msgdef, 'auth_openid');
-    
-    if ($msg != '[['.$msgdef.']]') {
-        return $msg;
+    if (get_string_manager()->string_exists($msgdef, 'auth_openid')) {
+        return get_string($msgdef, 'auth_openid');
     } else {
         return $message;
     }
