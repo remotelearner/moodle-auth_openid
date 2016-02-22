@@ -216,10 +216,8 @@ function openid_get_friendly_message($message) {
     $msgdef = preg_replace('/ /', '_', $msgdef);
     $msgdef = preg_replace('/[^0-9^a-z^_]/', '', $msgdef);
     $msgdef = 'auth_openid_'.$msgdef;
-    $msg = get_string($msgdef, 'auth_openid');
-    
-    if ($msg != '[['.$msgdef.']]') {
-        return $msg;
+    if (get_string_manager()->string_exists($msgdef, 'auth_openid')) {
+        return get_string($msgdef, 'auth_openid');
     } else {
         return $message;
     }

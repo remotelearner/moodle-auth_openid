@@ -26,7 +26,8 @@ set_include_path(get_include_path().PATH_SEPARATOR.$CFG->dirroot.'/auth/openid/l
 // Required files (library)
 require_once $CFG->dirroot.'/auth/openid/locallib.php';
 
-define('GOOGLE_OPENID_URL', 'https://www.google.com/accounts/o8/id');
+// Google deprecated OpenID-2 login 2015/04/15 and now uses OpenID-Connect
+// define('GOOGLE_OPENID_URL', 'https://www.google.com/accounts/o8/id');
 
 // Include the custom event script if it exists
 if (file_exists($CFG->dirroot.'/auth/openid/event.php')) {
@@ -763,7 +764,7 @@ class auth_plugin_openid extends auth_plugin_base {
         $DB->update_record('user', $user);
         $user = get_complete_user_data('id', $user->id);
 
-        events_trigger('user_created', $user); // Port ELIS-4347
+        \core\event\user_created::create_from_userid($user->id)->trigger();
 
         if (function_exists('on_openid_create_account')) {
             on_openid_create_account($resp, $user);
